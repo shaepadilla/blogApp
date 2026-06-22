@@ -1,5 +1,5 @@
 {
-    "url": "https://blogapp-dwrd.onrender.com",
+    "url": "https://blog-app-client-fawn.vercel.app/",
     "endpoints": {
         "register": "/register",
         "login": "/login",
