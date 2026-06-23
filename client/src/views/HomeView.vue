@@ -48,9 +48,9 @@
           <p class="item-preview">{{ post.content.slice(0, 160) }}{{ post.content.length > 160 ? '…' : '' }}</p>
           <div class="item-footer">
             <router-link :to="`/posts/${post._id}`" class="read-link">Read &rarr;</router-link>
-            <div v-if="isOwner(post)" class="owner-actions">
-              <router-link :to="`/posts/${post._id}/edit`" class="action-link">Edit</router-link>
-              <span class="dot">&nbsp;·&nbsp;</span>
+            <div v-if="canDelete(post)" class="owner-actions">
+              <router-link v-if="isOwner(post)" :to="`/posts/${post._id}/edit`" class="action-link">Edit</router-link>
+              <span v-if="isOwner(post)" class="dot">&nbsp;·&nbsp;</span>
               <button @click="deletePost(post._id)" class="action-link action-delete">Delete</button>
             </div>
           </div>
@@ -88,12 +88,22 @@ const currentUserId = computed(() => {
   try { return JSON.parse(atob(token.split('.')[1])).id } catch { return null }
 })
 
+const isAdmin = computed(() => {
+  const token = localStorage.getItem('token')
+  if (!token) return false
+  try { return !!JSON.parse(atob(token.split('.')[1])).isAdmin } catch { return false }
+})
+
 const isLoggedIn = computed(() => !!localStorage.getItem('token'))
 const featured = computed(() => posts.value[0] || null)
 const remainingPosts = computed(() => posts.value.slice(1))
 
 function isOwner(post) {
   return currentUserId.value && post.author?._id === currentUserId.value
+}
+
+function canDelete(post) {
+  return isOwner(post) || isAdmin.value
 }
 
 function formatDate(date) {

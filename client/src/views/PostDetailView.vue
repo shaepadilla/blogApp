@@ -19,6 +19,8 @@
           <template v-if="isOwner">
             <span class="dot">&nbsp;·&nbsp;</span>
             <router-link :to="`/posts/${post._id}/edit`" class="owner-link">Edit</router-link>
+          </template>
+          <template v-if="canDelete">
             <span class="dot">&nbsp;·&nbsp;</span>
             <button @click="deletePost" class="owner-btn">Delete</button>
           </template>
@@ -105,7 +107,14 @@ const currentUserId = computed(() => {
   try { return JSON.parse(atob(token.split('.')[1])).id } catch { return null }
 })
 
+const isAdmin = computed(() => {
+  const token = localStorage.getItem('token')
+  if (!token) return false
+  try { return !!JSON.parse(atob(token.split('.')[1])).isAdmin } catch { return false }
+})
+
 const isOwner = computed(() => post.value && currentUserId.value === post.value.author?._id)
+const canDelete = computed(() => isOwner.value || isAdmin.value)
 
 const paragraphs = computed(() => {
   if (!post.value?.content) return []
